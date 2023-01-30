@@ -10,6 +10,7 @@ import Data.Generic.Rep (class Generic)
 -- | Error type for failures while decoding.
 data JsonDecodeError
   = TypeMismatch String
+  | MalformedValue String String
   | UnexpectedValue Json
   | AtIndex Int JsonDecodeError
   | AtKey String JsonDecodeError
@@ -23,6 +24,7 @@ derive instance genericJsonDecodeError :: Generic JsonDecodeError _
 instance showJsonDecodeError :: Show JsonDecodeError where
   show = case _ of
     TypeMismatch s -> "(TypeMismatch " <> show s <> ")"
+    MalformedValue t s -> "(MalformedValue " <> show t <> " " <> show s <> ")"
     UnexpectedValue j -> "(UnexpectedValue " <> stringify j <> ")"
     AtIndex i e -> "(AtIndex " <> show i <> " " <> show e <> ")"
     AtKey k e -> "(AtKey " <> show k <> " " <> show e <> ")"
@@ -36,6 +38,7 @@ printJsonDecodeError err =
   where
   go = case _ of
     TypeMismatch ty -> "  Expected value of type '" <> ty <> "'."
+    MalformedValue ty val -> " Malformed value '" <> ty <> "' of type '" <> val <> "'."
     UnexpectedValue val -> "  Unexpected value " <> stringify val <> "."
     AtIndex ix inner -> "  At array index " <> show ix <> ":\n" <> go inner
     AtKey key inner -> "  At object key \'" <> key <> "\':\n" <> go inner

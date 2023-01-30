@@ -1,5 +1,7 @@
 let upstream =
-      https://github.com/purescript/package-sets/releases/download/psc-0.15.2-20220612/packages.dhall
-        sha256:9876aee1362a5dac10061768c68a7ecc4a59ca9267c3760f7d43ea9d3812ec11
+      https://github.com/purescript/package-sets/releases/download/psc-0.15.7-20230130/packages.dhall
+        sha256:63189ab110ac8add19149c5c42b0c044b97f96d7cbe0505c140974061a786141
 
 in  upstream
+  with argonaut-core.repo = "https://github.com/miuirussia/purescript-argonaut-core.git"
+  with argonaut-core.version = "v8.0.0"

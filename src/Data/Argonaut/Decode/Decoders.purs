@@ -2,7 +2,7 @@ module Data.Argonaut.Decode.Decoders where
 
 import Prelude
 
-import Data.Argonaut.Core (Json, caseJsonBoolean, caseJsonNull, caseJsonNumber, caseJsonString, isNull, toArray, toObject, toString, fromString)
+import Data.Argonaut.Core (Json(..), fromString, isNull, toArray, toObject, toString)
 import Data.Argonaut.Decode.Error (JsonDecodeError(..))
 import Data.Array as Arr
 import Data.Array.NonEmpty (NonEmptyArray)
@@ -11,6 +11,7 @@ import Data.Bifunctor (lmap)
 import Data.Either (Either(..), note)
 import Data.Identity (Identity(..))
 import Data.Int (fromNumber)
+import Data.Number (fromString) as Number
 import Data.List (List, fromFoldable)
 import Data.List as L
 import Data.List.NonEmpty (NonEmptyList)
@@ -72,19 +73,27 @@ decodeEither decoderA decoderB json =
       _ -> Left $ AtKey "tag" (UnexpectedValue tag)
 
 decodeNull :: Json -> Either JsonDecodeError Unit
-decodeNull = caseJsonNull (Left $ TypeMismatch "null") (const $ Right unit)
+decodeNull = case _ of
+  JNull -> Right unit
+  _ -> Left $ TypeMismatch "null"
 
 decodeBoolean :: Json -> Either JsonDecodeError Boolean
-decodeBoolean = caseJsonBoolean (Left $ TypeMismatch "Boolean") Right
+decodeBoolean = case _ of
+  JBoolean bool -> Right bool
+  _ -> Left $ TypeMismatch "Boolean"
 
 decodeNumber :: Json -> Either JsonDecodeError Number
-decodeNumber = caseJsonNumber (Left $ TypeMismatch "Number") Right
+decodeNumber = case _ of
+  JNumber num -> note (MalformedValue "Number" num) $ Number.fromString num
+  _ -> Left $ TypeMismatch "Number"
 
 decodeInt :: Json -> Either JsonDecodeError Int
 decodeInt = note (TypeMismatch "Integer") <<< fromNumber <=< decodeNumber
 
 decodeString :: Json -> Either JsonDecodeError String
-decodeString = caseJsonString (Left $ TypeMismatch "String") Right
+decodeString = case _ of
+  JString str -> Right str
+  _ -> Left $ TypeMismatch "String"
 
 decodeNonEmptyString :: Json -> Either JsonDecodeError NonEmptyString
 decodeNonEmptyString json =

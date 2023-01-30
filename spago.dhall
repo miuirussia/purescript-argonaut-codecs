@@ -18,6 +18,7 @@
   , "integers"
   , "lists"
   , "maybe"
+  , "numbers"
   , "nonempty"
   , "ordered-collections"
   , "prelude"
